@@ -3,19 +3,15 @@ import {useState, useEffect} from 'react'
 
 export default function Header() {
     const [user, setUser] = useState(null);
+    const [username, setUsername] = useState('');
 
     useEffect(() => {
         const token = typeof window !== 'undefined' ? localStorage.getItem('jwt') : null;
         const userData = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-        if (token && userData) {
-            try {
-                setUser(JSON.parse(userData));
-            } catch {
-                setUser(null);
-            }
-        } else {
-            setUser(null);
-        }
+        const user = JSON.parse(userData);
+        setUser(user)
+        const {username} = user.user
+        setUsername(username);  
     }, []);
 
     return (
@@ -39,7 +35,7 @@ export default function Header() {
                                 <a href="/register" className="text-white hover:underline">Sign Up</a>
                             </>
                         ) : (
-                            <span className="font-semibold text-white">{user.username || user.email}</span>
+                            <span className="font-semibold text-white">{username}</span>
                         )}
                 <button className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800">
                     <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" /></svg>

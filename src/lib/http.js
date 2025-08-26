@@ -1,4 +1,4 @@
-const RAW_PUBLIC = process.env.NEXT_PUBLIC_API_URL;
+const RAW_PUBLIC = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const RAW_SERVER = process.env.BACKEND_ORIGIN;
 
 const IS_SERVER = typeof window === 'undefined';
