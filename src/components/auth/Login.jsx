@@ -1,37 +1,36 @@
 'use client'
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
 import { login } from '../../lib/api/users';
 
 
-const Login = ({ onLogin }) => {
+const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const router = useRouter();
+    const { login: loginContext } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
         try {
             const user = await login(email, password);
-            if (user) {
-                if (user.token) {
-                    localStorage.setItem('jwt', user.token);
-                }
-                    localStorage.setItem('user', JSON.stringify(user));
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Bienvenido!',
-                        text: user.username ? `Hola, ${user.username}` : 'Inicio de sesión exitoso',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    onLogin(user);
-                    setTimeout(() => {
-                        router.push('/');
-                    }, 1600);
+            if (user && user.token) {
+                // Actualiza el contexto global
+                loginContext(user, user.token);
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Bienvenido!',
+                    text: user.username ? `Hola, ${user.username}` : 'Inicio de sesión exitoso',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                setTimeout(() => {
+                    router.push('/');
+                }, 1600);
             } else {
                 Swal.fire({
                     icon: 'error',
