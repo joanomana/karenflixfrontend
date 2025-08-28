@@ -78,8 +78,9 @@ export async function request(path, { method = 'GET', body, headers, timeout = 1
 
 export const http = {
     get: (p, o) => request(p, { ...o, method: 'GET' }),
-    post: (p, b, o) => request(p, { ...o, method: 'POST', body: b }),
-    put: (p, b, o) => request(p, { ...o, method: 'PUT', body: b }),
+    post: (p, body, o) => request(p, { ...o, method: 'POST', body }),
+    put: (p, body, o) => request(p, { ...o, method: 'PUT', body }),
+    patch: (p, body, o) => request(p, { ...o, method: 'PATCH', body }),
     del: (p, o) => request(p, { ...o, method: 'DELETE' }),
 };
 
