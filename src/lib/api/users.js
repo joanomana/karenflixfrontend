@@ -1,35 +1,43 @@
 import { http } from '../http.js';
 
-// =================== USUARIOS ===================
+// =================== FUNCIONES DE USUARIOS ===================
+// GET /users - Obtener todos los usuarios (solo admin)
+export const getUsersList = (params = {}) => http.get('/api/v1/users', { query: params });
+
+// GET /users/{id} - Obtener un usuario por ID
+export const getUserById = (id, token) => http.get(`/api/v1/users/${id}`, { 
+    headers: token ? { Authorization: `Bearer ${token}` } : {} 
+});
+
+// PUT /users/{id} - Actualizar un usuario (solo admin)
+export const updateUser = (id, payload, token) => http.put(`/api/v1/users/${id}`, payload, { 
+    headers: token ? { Authorization: `Bearer ${token}` } : {} 
+});
+
+// DELETE /users/{id} - Eliminar un usuario (solo admin)
+export const deleteUser = (id, token) => http.del(`/api/v1/users/${id}`, { 
+    headers: token ? { Authorization: `Bearer ${token}` } : {} 
+});
+
+// PATCH /users/{id}/update-profile - Actualizar el perfil del usuario autenticado
+export const updateUserProfile = (id, payload, token) => http.patch(`/api/v1/users/${id}/update-profile`, payload, { 
+    headers: token ? { Authorization: `Bearer ${token}` } : {} 
+});
+
+// PATCH /users/{id}/change-password - Cambiar contraseña (usuario o admin)
+export const changeUserPassword = (id, currentPassword, newPassword, token) => http.patch(`/api/v1/users/${id}/change-password`, 
+    { currentPassword, newPassword }, 
+    { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+);
+
+// =================== OBJETO LEGACY (para compatibilidad) ===================
 export const users = {
-    // GET /users - Obtener todos los usuarios (solo admin)
-    list: (params = {}) => http.get('/api/v1/users', { query: params }),
-    
-    // GET /users/{id} - Obtener un usuario por ID
-    get: (id, token) => http.get(`/api/v1/users/${id}`, { 
-        headers: token ? { Authorization: `Bearer ${token}` } : {} 
-    }),
-    
-    // PUT /users/{id} - Actualizar un usuario (solo admin)
-    update: (id, payload, token) => http.put(`/api/v1/users/${id}`, payload, { 
-        headers: token ? { Authorization: `Bearer ${token}` } : {} 
-    }),
-    
-    // DELETE /users/{id} - Eliminar un usuario (solo admin)
-    delete: (id, token) => http.del(`/api/v1/users/${id}`, { 
-        headers: token ? { Authorization: `Bearer ${token}` } : {} 
-    }),
-    
-    // PATCH /users/{id}/update-profile - Actualizar el perfil del usuario autenticado
-    updateProfile: (id, payload, token) => http.patch(`/api/v1/users/${id}/update-profile`, payload, { 
-        headers: token ? { Authorization: `Bearer ${token}` } : {} 
-    }),
-    
-    // PATCH /users/{id}/change-password - Cambiar contraseña (usuario o admin)
-    changePassword: (id, oldPassword, newPassword, token) => http.patch(`/api/v1/users/${id}/change-password`, 
-        { oldPassword, newPassword }, 
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-    ),
+    list: getUsersList,
+    get: getUserById,
+    update: updateUser,
+    delete: deleteUser,
+    updateProfile: updateUserProfile,
+    changePassword: changeUserPassword,
 };
 
 // =================== AUTENTICACIÓN ===================
@@ -61,7 +69,7 @@ export const auth = {
 // =================== FUNCIONES DE CONVENIENCIA ===================
 export async function getUsers(token) {
     try {
-        const res = await users.list();
+        const res = await getUsersList();
         return res.data || res;
     } catch (e) {
         console.error('Error obteniendo usuarios:', e);
@@ -86,5 +94,16 @@ export async function register({ username, email, password }) {
     } catch (e) {
         console.error('Error en registro:', e);
         return e.data || { success: false, message: e.message || "Error desconocido" };
+    }
+}
+
+export async function changePasswordSafe(id, currentPassword, newPassword, token) {
+    try {
+        const res = await changeUserPassword(id, currentPassword, newPassword, token);
+        return res.data || res;
+    } catch (e) {
+        // Mostrar el error específico del backend
+        console.error('Error cambiando contraseña:', e.response?.data || e.message);
+        return e.response?.data || { success: false, message: e.message || "Error desconocido" };
     }
 }

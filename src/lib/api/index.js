@@ -1,1 +1,11 @@
-export { users, auth } from './users.js';
+export { 
+    users, 
+    auth, 
+    getUsersList, 
+    getUserById, 
+    updateUser, 
+    deleteUser, 
+    updateUserProfile, 
+    changeUserPassword,
+    changePasswordSafe
+} from './users.js';

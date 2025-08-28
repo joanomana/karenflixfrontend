@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { users } from "../../../lib/api/users";
+import { getUserById } from "../../../lib/api/users";
 import { useAuth } from "../../../context/AuthContext";
 import Swal from "sweetalert2";
 
@@ -27,7 +27,7 @@ export default function UserProfilePage() {
 
             try {
                 const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("jwt") : null);
-                const res = await users.get(userId, authToken);
+                const res = await getUserById(userId, authToken);
                 setUserData(res);
                 setLoading(false);
             } catch (err) {

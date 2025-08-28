@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { users } from "../../../../lib/api/users";
+import { getUserById, updateUserProfile, changePasswordSafe } from "../../../../lib/api/users";
 import Swal from "sweetalert2";
 import { useAuth } from "../../../../context/AuthContext";
 
@@ -11,6 +11,7 @@ export default function EditProfilePage() {
     const params = useParams();
     const userId = params?.id;
     const [userData, setUserData] = useState({ username: "", email: "", password: "" });
+    const [newUserData, setNewUserData] = useState({ username: "" });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -27,6 +28,7 @@ export default function EditProfilePage() {
 
             // Verificar que el usuario esté autenticado
             const token = currentToken || (typeof window !== "undefined" ? localStorage.getItem("jwt") : null);
+            console.log(token)
             if (!token) {
                 Swal.fire({
                     icon: "error",
@@ -39,7 +41,8 @@ export default function EditProfilePage() {
 
             // Verificar que el usuario solo pueda editar su propio perfil
             const currentUserId = currentUser?.id || currentUser?.user?.id;
-            if (currentUserId && parseInt(userId) !== currentUserId) {
+            console.log({ currentUserId, userId });
+            if (currentUserId && userId !== currentUserId) {
                 Swal.fire({
                     icon: "error",
                     title: "No autorizado",
@@ -50,12 +53,15 @@ export default function EditProfilePage() {
             }
 
             try {
-                const res = await users.get(userId, token);
+                const res = await getUserById(userId, token);
+                const username = res.data.username
+                const email = res.data.email
                 setUserData({
-                    username: res.username || "",
-                    email: res.email || "",
+                    username: username || "",
+                    email: email || "",
                     password: ""
                 });
+                console.log(res)
                 setLoading(false);
             } catch (err) {
                 console.log('Error al obtener usuario:', err);
@@ -72,7 +78,7 @@ export default function EditProfilePage() {
     }, [router, userId, currentToken, currentUser]);
 
     const handleChange = e => {
-        setUserData({ ...userData, [e.target.name]: e.target.value });
+        setNewUserData({ ...newUserData, [e.target.name]: e.target.value });
     };
 
     const handlePasswordChange = async () => {
@@ -96,7 +102,8 @@ export default function EditProfilePage() {
         if (formValues) {
             try {
                 const token = currentToken || (typeof window !== "undefined" ? localStorage.getItem("jwt") : null);
-                const res = await users.changePassword(userId, formValues.oldPassword, formValues.newPassword, token);
+                const res = await changePasswordSafe(userId, formValues.oldPassword, formValues.newPassword, token);
+                console.log(res);
                 
                 if (res && res.success !== false) {
                     Swal.fire({
@@ -127,13 +134,11 @@ export default function EditProfilePage() {
         
         try {
             const token = currentToken || (typeof window !== "undefined" ? localStorage.getItem("jwt") : null);
-            const res = await users.updateProfile(userId, { 
-                username: userData.username, 
-                email: userData.email 
+            const res = await updateUserProfile(userId, { 
+                username: newUserData.username
             }, token);
             
             if (res && res.success !== false) {
-                // Actualizar el localStorage y el contexto de autenticación
                 const updatedUser = { ...currentUser, ...res };
                 localStorage.setItem('user', JSON.stringify(updatedUser));
                 login(updatedUser, token);
@@ -144,7 +149,7 @@ export default function EditProfilePage() {
                     text: "Tus datos personales han sido actualizados correctamente."
                 });
                 
-                setTimeout(() => router.push(`/usuario/${userId}`), 1600);
+                setTimeout(() => router.push(`/perfil/editar/${userId}`), 1600);
             } else {
                 Swal.fire({
                     icon: "error",
@@ -208,8 +213,8 @@ export default function EditProfilePage() {
                                 type="text"
                                 id="username"
                                 name="username"
-                                placeholder="Ingresa tu nuevo nombre de usuario"
-                                value={userData.username}
+                                placeholder={userData.username}
+                                value={newUserData.username}
                                 onChange={handleChange}
                                 required
                                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors"
