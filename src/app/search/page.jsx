@@ -1,14 +1,10 @@
-import Header from '../components/layout/Header';
-import Hero from '../components/home/Hero';
-import MovieSection from '../components/home/MovieSection';
-import { getPublicMedia } from '../lib/api';
-
-
-export const revalidate = 3600; // Revalidate every hour
+import Header from '../../components/layout/Header';
+import MovieSection from '../../components/home/MovieSection';
+import { getPublicMedia } from '../../lib/api';
 
 function mapItem(m) {
   const year = m?.year || '';
-
+  // category can be: string | {name:string} | array of any of those
   let category = '';
   const c = m?.category;
   if (Array.isArray(c)) {
@@ -32,30 +28,24 @@ function mapItem(m) {
   };
 }
 
-export default async function HomePage() {
-  let animeMapped = [];
-  let moviesMapped = [];
-  let seriesMapped = [];
+export default async function SearchPage({ searchParams }) {
+  const q = searchParams?.q || '';
+  const [animeRes, moviesRes, seriesRes] = await Promise.all([
+    getPublicMedia({ type: 'anime', q, limit: 20, sort: '-metrics.weightedScore' }),
+    getPublicMedia({ type: 'movie', q, limit: 20, sort: '-metrics.weightedScore' }),
+    getPublicMedia({ type: 'series', q, limit: 20, sort: '-metrics.weightedScore' }),
+  ]);
 
-  try {
-    const [{ items: anime = [] }, { items: movies = [] }, { items: series = [] }] = await Promise.all([
-      getPublicMedia({ type: 'anime', limit: 20, sort: '-metrics.weightedScore' }),
-      getPublicMedia({ type: 'movie', limit: 20, sort: '-metrics.weightedScore' }),
-      getPublicMedia({ type: 'series', limit: 20, sort: '-metrics.weightedScore' }),
-    ]);
-
-    animeMapped = (anime || []).map(mapItem);
-    moviesMapped = (movies || []).map(mapItem);
-    seriesMapped = (series || []).map(mapItem);
-  } catch (error) {
-    console.error('Error fetching media data:', error);
-
-  }
+  const animeMapped = (animeRes?.items || []).map(mapItem);
+  const moviesMapped = (moviesRes?.items || []).map(mapItem);
+  const seriesMapped = (seriesRes?.items || []).map(mapItem);
 
   return (
     <main className="bg-gray-100 min-h-screen">
       <Header />
-      <Hero />
+      <div className="px-8 pt-6">
+        <h1 className="text-2xl font-bold mb-4">Resultados para: <span className="text-red-600">{q}</span></h1>
+      </div>
       <MovieSection title="Anime" movies={animeMapped} />
       <MovieSection title="Películas" movies={moviesMapped} />
       <MovieSection title="Series" movies={seriesMapped} />

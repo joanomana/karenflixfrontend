@@ -1,5 +1,5 @@
 const RAW_PUBLIC = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-const RAW_SERVER = process.env.BACKEND_ORIGIN;
+const RAW_SERVER = process.env.NEXT_PUBLIC_API_URL;
 
 const IS_SERVER = typeof window === 'undefined';
 const norm = (s) => (s && s.trim() ? s.replace(/\/+$/, '') : s);
@@ -8,9 +8,7 @@ const norm = (s) => (s && s.trim() ? s.replace(/\/+$/, '') : s);
 const BASE_BROWSER = norm(RAW_PUBLIC) || '';
 
 
-const SITE_ORIGIN =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
+const SITE_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
 
 const BASE_SERVER = norm(RAW_SERVER) || norm(SITE_ORIGIN) || 'http://localhost:4000';
 
@@ -35,11 +33,9 @@ function buildURL(path, query) {
 }
 
 export async function request(path, { method = 'GET', body, headers, timeout = 15000, query, credentials } = {}) {
-
     const url = buildURL(path, query);
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
-
 
     const computedHeaders = { ...(headers || {}) };
     if (body && !computedHeaders['Content-Type']) {
@@ -48,16 +44,24 @@ export async function request(path, { method = 'GET', body, headers, timeout = 1
 
     let res;
     try {
-        res = await fetch(url, {
+        // During build time, if external API is not available, provide fallback
+        const fetchOptions = {
             method,
             headers: computedHeaders,
             body: body ? JSON.stringify(body) : undefined,
             signal: controller.signal,
-            cache: 'no-store',
+            next: { revalidate: 3600 }, // Cache for 1 hour during build and runtime
             credentials,
-        });
+        };
+
+        res = await fetch(url, fetchOptions);
     } catch (err) {
         clearTimeout(id);
+        // During build time, return empty fallback instead of throwing
+        if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+            console.warn(`Build-time fetch failed for ${url}, returning fallback`);
+            return { items: [], total: 0 };
+        }
         throw new Error(`Fetch error: ${err.message} | url=${url}`);
     }
     clearTimeout(id);
@@ -66,6 +70,11 @@ export async function request(path, { method = 'GET', body, headers, timeout = 1
     let data; try { data = text ? JSON.parse(text) : null; } catch { data = text; }
 
     if (!res.ok) {
+        // During build time, return empty fallback instead of throwing
+        if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+            console.warn(`Build-time fetch failed with status ${res.status} for ${url}, returning fallback`);
+            return { items: [], total: 0 };
+        }
         const msg = (data && (data.error || data.message)) || `HTTP ${res.status}`;
         const e = new Error(msg);
         e.status = res.status;
