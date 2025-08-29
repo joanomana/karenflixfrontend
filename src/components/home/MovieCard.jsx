@@ -3,7 +3,7 @@ import React from 'react';
 export default function MovieCard({ movie }) {
     return (
         <div className="bg-white rounded-xl shadow hover:scale-105 transition-transform duration-200 overflow-hidden w-48">
-            <img src={movie.image} alt={movie.title} className="w-full h-64 object-cover" />
+            <img src={(movie.image || movie.imageUrl || '/window.svg')} alt={movie.title} className="w-full h-64 object-cover" />
             <div className="p-4">
                 <h3 className="font-bold text-lg mb-1">{movie.title}</h3>
                 <div className="flex items-center gap-2 mb-2">

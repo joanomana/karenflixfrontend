@@ -1,10 +1,13 @@
 'use client'
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 
 export default function Header() {
     const { user, logout } = useAuth();
+    const router = useRouter();
+    const [query, setQuery] = useState('');
     const username = user?.user?.username || user?.username || '';
     const role = user?.user?.role || user?.role || '';
     const userId = user?.user?.id || user?.id || '';
@@ -17,11 +20,18 @@ export default function Header() {
                 <span className="font-bold text-xl">MovieBox</span>
             </div>
             <div className="flex-1 mx-8">
+                <form
+                onSubmit={(e) => { e.preventDefault(); if (query && query.trim()) router.push(`/search?q=${encodeURIComponent(query.trim())}`); }}
+                className="w-full"
+            >
                 <input
                     type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
                     placeholder="What do you want to watch?"
                     className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none"
                 />
+            </form>
             </div>
             <div className="flex items-center gap-4">
                 {username ? (

@@ -9,3 +9,4 @@ export {
     changeUserPassword,
     changePasswordSafe
 } from './users.js';
+export { getPublicMedia, getRanking, getPopular, getByCategory } from './media.js';
