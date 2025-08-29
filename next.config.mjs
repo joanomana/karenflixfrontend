@@ -1,4 +1,4 @@
-const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

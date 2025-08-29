@@ -3,9 +3,12 @@ import Hero from '../components/home/Hero';
 import MovieSection from '../components/home/MovieSection';
 import { getPublicMedia } from '../lib/api';
 
+
+export const revalidate = 3600; // Revalidate every hour
+
 function mapItem(m) {
   const year = m?.year || '';
-  // category can be: string | {name:string} | array of any of those
+
   let category = '';
   const c = m?.category;
   if (Array.isArray(c)) {
@@ -30,15 +33,24 @@ function mapItem(m) {
 }
 
 export default async function HomePage() {
-  const [{ items: anime = [] }, { items: movies = [] }, { items: series = [] }] = await Promise.all([
-    getPublicMedia({ type: 'anime', limit: 20, sort: '-metrics.weightedScore' }),
-    getPublicMedia({ type: 'movie', limit: 20, sort: '-metrics.weightedScore' }),
-    getPublicMedia({ type: 'series', limit: 20, sort: '-metrics.weightedScore' }),
-  ]);
+  let animeMapped = [];
+  let moviesMapped = [];
+  let seriesMapped = [];
 
-  const animeMapped = (anime || []).map(mapItem);
-  const moviesMapped = (movies || []).map(mapItem);
-  const seriesMapped = (series || []).map(mapItem);
+  try {
+    const [{ items: anime = [] }, { items: movies = [] }, { items: series = [] }] = await Promise.all([
+      getPublicMedia({ type: 'anime', limit: 20, sort: '-metrics.weightedScore' }),
+      getPublicMedia({ type: 'movie', limit: 20, sort: '-metrics.weightedScore' }),
+      getPublicMedia({ type: 'series', limit: 20, sort: '-metrics.weightedScore' }),
+    ]);
+
+    animeMapped = (anime || []).map(mapItem);
+    moviesMapped = (movies || []).map(mapItem);
+    seriesMapped = (series || []).map(mapItem);
+  } catch (error) {
+    console.error('Error fetching media data:', error);
+
+  }
 
   return (
     <main className="bg-gray-100 min-h-screen">
