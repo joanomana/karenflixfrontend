@@ -1,4 +1,4 @@
-const RAW_PUBLIC = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const RAW_PUBLIC = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 const RAW_SERVER = process.env.BACKEND_ORIGIN;
 
 const IS_SERVER = typeof window === 'undefined';
@@ -8,11 +8,9 @@ const norm = (s) => (s && s.trim() ? s.replace(/\/+$/, '') : s);
 const BASE_BROWSER = norm(RAW_PUBLIC) || '';
 
 
-const SITE_ORIGIN =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
+const SITE_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL ||(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
 
-const BASE_SERVER = norm(RAW_SERVER) || norm(SITE_ORIGIN) || 'http://localhost:4000';
+const BASE_SERVER = norm(RAW_SERVER) || norm(SITE_ORIGIN) || 'http://localhost:4001';
 
 const BASE_URL = IS_SERVER ? BASE_SERVER : BASE_BROWSER;
 
