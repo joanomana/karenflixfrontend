@@ -195,3 +195,7 @@ export async function getMediaCategories(token) {
 export async function suggestMedia(data) {
   return await http.post(`/api/v1/media/suggest`, data);
 }
+export async function getMediaDetail(idOrSlug) {
+  if (!idOrSlug) throw new Error('idOrSlug is required');
+  return await http.get(`/api/v1/media/public/${encodeURIComponent(idOrSlug)}`);
+}
