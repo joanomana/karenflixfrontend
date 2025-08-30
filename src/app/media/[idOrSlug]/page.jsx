@@ -1,3 +1,4 @@
+
 import { getMediaDetail } from '../../../lib/api/media';
 import Header from '../../../components/layout/Header';
 import ReviewThread from '../../../components/reviews/ReviewThread';
@@ -5,13 +6,14 @@ import ReviewThread from '../../../components/reviews/ReviewThread';
 export const revalidate = 0;
 
 export default async function MediaDetailPage({ params }) {
-  const { idOrSlug } = params; // sin await
+  const { idOrSlug } = await params;
   let media = null, reviews = [];
   try {
     const data = await getMediaDetail(idOrSlug);
     media = data.media;
     reviews = data.reviews || [];
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error('Error loading media detail', e);
   }
 
