@@ -2,7 +2,10 @@ import { http } from '../http.js';
 
 // =================== FUNCIONES DE USUARIOS ===================
 // GET /users - Obtener todos los usuarios (solo admin)
-export const getUsersList = (params = {}) => http.get('/api/v1/users', { query: params });
+export const getUsersList = (params = {}, token) => http.get('/api/v1/users', { 
+    query: params,
+    headers: token ? { Authorization: `Bearer ${token}` } : {} 
+});
 
 // GET /users/{id} - Obtener un usuario por ID
 export const getUserById = (id, token) => http.get(`/api/v1/users/${id}`, { 
@@ -69,7 +72,7 @@ export const auth = {
 // =================== FUNCIONES DE CONVENIENCIA ===================
 export async function getUsers(token) {
     try {
-        const res = await getUsersList();
+        const res = await getUsersList({}, token);
         return res.data || res;
     } catch (e) {
         console.error('Error obteniendo usuarios:', e);
