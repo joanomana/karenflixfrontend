@@ -9,7 +9,7 @@ const AdminDashboard = ({ authToken, currentUser, userId, validateTokenBeforeAct
     useEffect(() => {
         const fetchUsers = async () => {
             if (!validateTokenBeforeAction()) return;
-            
+
             try {
                 const usersData = await getUsers(authToken);
                 setUsers(usersData);
@@ -26,7 +26,7 @@ const AdminDashboard = ({ authToken, currentUser, userId, validateTokenBeforeAct
     const totalUsers = users.length;
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="w-full mx-auto">
             <h1 className="text-3xl font-bold text-gray-900 mb-8">Panel de Administración</h1>
             <p className="text-gray-600 mb-4">
                 Total de usuarios: {loading ? 'Cargando...' : totalUsers}
