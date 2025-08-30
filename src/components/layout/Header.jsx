@@ -1,7 +1,8 @@
 'use client'
 import { useAuth } from '../../context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import SuggestMediaModal from '../media/SuggestMediaModal';
 
 
 export default function Header() {
@@ -12,6 +13,10 @@ export default function Header() {
     const role = user?.user?.role || user?.role || '';
     const userId = user?.user?.id || user?.id || '';
     const [menuOpen, setMenuOpen] = useState(false);
+
+    const [showSuggest, setShowSuggest] = useState(false);
+    const openSuggest = () => setShowSuggest(true);
+    const closeSuggest = () => setShowSuggest(false);
 
     return (
         <header className="flex items-center justify-between px-8 py-4 bg-black text-white">
@@ -76,6 +81,14 @@ export default function Header() {
                     </button>
                 )}
             </div>
+        {user && (
+            <div className="ml-4 inline-block">
+              <button onClick={openSuggest} className="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition">
+                Sugerir
+              </button>
+            </div>
+          )}
+          <SuggestMediaModal open={showSuggest} onClose={closeSuggest} onSuccess={() => {}} />
         </header>
     );
 }

@@ -1,14 +1,5 @@
 import { http } from '../http.js';
 
-/**
- * Public media listing
- * @param {Object} params
- * @param {string} [params.type] - 'movie' | 'series' | 'anime'
- * @param {string} [params.q] - search query
- * @param {number} [params.page]
- * @param {number} [params.limit]
- * @param {string} [params.sort] - e.g. '-metrics.weightedScore'
- */
 export async function getPublicMedia(params = {}) {
   const qs = new URLSearchParams();
   if (params.type) qs.set('type', params.type);
@@ -36,4 +27,11 @@ export async function getByCategory(slug, params = {}) {
   if (params.page) qs.set('page', String(params.page));
   if (params.limit) qs.set('limit', String(params.limit));
   return await http.get(`/api/v1/media/category/${encodeURIComponent(slug)}?${qs.toString()}`);
+}
+
+// Nuevo: obtener detalle de media
+export async function getMediaDetail(idOrSlug, opts = { includeReviews: true }) {
+  const qs = new URLSearchParams();
+  if (opts?.includeReviews) qs.set('include', 'reviews');
+  return await http.get(`/api/v1/media/public/${encodeURIComponent(idOrSlug)}?${qs.toString()}`);
 }
