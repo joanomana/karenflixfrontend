@@ -51,15 +51,15 @@ export default async function MediaDetailPage({ params }) {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                 <div className="bg-gray-50 p-3 rounded">
                   <div className="text-xs text-gray-500">Rating Avg</div>
-                  <div className="text-xl font-semibold">{media.metrics.ratingAvg ?? 0}</div>
+                  <div className="text-xl font-semibold">{media.metrics.ratingAvg.toFixed(1) ?? "0.0"}</div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded">
                   <div className="text-xs text-gray-500">Ratings</div>
-                  <div className="text-xl font-semibold">{media.metrics.ratingCount ?? 0}</div>
+                  <div className="text-xl font-semibold">{media.metrics.ratingCount.toFixed(1) ?? "0.0"}</div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded">
                   <div className="text-xs text-gray-500">Weighted</div>
-                  <div className="text-xl font-semibold">{media.metrics.weightedScore ?? 0}</div>
+                  <div className="text-xl font-semibold">{media.metrics.weightedScore.toFixed(1) ?? "0.0"}</div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded">
                   <div className="text-xs text-gray-500">Likes</div>
