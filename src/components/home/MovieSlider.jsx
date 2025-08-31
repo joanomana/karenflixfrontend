@@ -8,7 +8,7 @@ export default function MovieSlider({ movies }) {
                 <div key={movie.slug || movie.id} className="flex-shrink-0">
                     {/* MovieCard wrapped in Link */}
                     <Link href={`/media/${encodeURIComponent(movie.slug || movie.id)}`}>
-                    <div className="bg-white rounded-xl shadow hover:scale-105 transition-transform duration-200 overflow-hidden w-48">
+                    <div className="bg-white rounded-xl shadow hover:scale-115 transition-transform duration-200 overflow-hidden w-48 h-105">
                         <img src={(movie.image || movie.imageUrl || '/window.svg')} alt={movie.title} className="w-full h-64 object-cover" />
                         <div className="p-4">
                             <h3 className="font-bold text-lg mb-1">{movie.title}</h3>

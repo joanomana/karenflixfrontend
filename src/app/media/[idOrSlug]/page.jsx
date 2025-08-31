@@ -1,20 +1,47 @@
 
+'use client';
+
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { getMediaDetail } from '../../../lib/api/media';
 import Header from '../../../components/layout/Header';
 import ReviewThread from '../../../components/reviews/ReviewThread';
 
-export const revalidate = 0;
+export default function MediaDetailPage({ params }) {
+  const router = useRouter();
+  const [media, setMedia] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function MediaDetailPage({ params }) {
-  const { idOrSlug } = await params;
-  let media = null, reviews = [];
-  try {
-    const data = await getMediaDetail(idOrSlug);
-    media = data.media;
-    reviews = data.reviews || [];
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error('Error loading media detail', e);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { idOrSlug } = await params;
+        const data = await getMediaDetail(idOrSlug);
+        setMedia(data.media);
+        setReviews(data.reviews || []);
+      } catch (e) {
+        console.error('Error loading media detail', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [params]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gray-100">
+        <Header />
+        <div className="max-w-4xl mx-auto p-6">
+          <div className="flex justify-center items-center py-20">
+            <div className="text-xl text-gray-600">Cargando...</div>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   if (!media) {
@@ -33,6 +60,19 @@ export default async function MediaDetailPage({ params }) {
     <main className="min-h-screen bg-gray-100">
       <Header />
       <section className="max-w-5xl mx-auto p-6">
+        {/* Botón Volver a Inicio */}
+        <div className="mb-6">
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Volver al inicio
+          </button>
+        </div>
+        
         <div className="grid md:grid-cols-3 gap-6">
           <div className="md:col-span-1">
             <img src={media.imageUrl || '/no-image.svg'} alt={media.title} className="w-full rounded-xl shadow object-cover" />

@@ -28,7 +28,8 @@ export default function UserProfilePage() {
             try {
                 const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("jwt") : null);
                 const res = await getUserById(userId, authToken);
-                setUserData(res);
+                console.log(res)
+                setUserData(res.data);
                 setLoading(false);
             } catch (err) {
                 console.log('Error al obtener usuario:', err);
